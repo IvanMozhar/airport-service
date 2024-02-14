@@ -109,10 +109,10 @@ class Ticket(models.Model):
         on_delete=models.CASCADE,
         related_name="tickets"
     )
+
     @staticmethod
-    def validate_ticket(row, seat, airplane, error_to_raise):
+    def validate_ticket(row, seat, airplane, error_to_raise, flight):
         if airplane is not None:
-            # Validate the row and seat are within the airplane's capacity.
             if not (1 <= row <= airplane.rows):
                 raise error_to_raise(
                     {
@@ -126,12 +126,10 @@ class Ticket(models.Model):
                     }
                 )
 
-        # Check if the seat is already taken.
         if Ticket.objects.filter(flight=flight, row=row, seat=seat).exists():
             raise error_to_raise('This seat is already taken on this flight.')
 
     def clean(self):
-        # Assuming there's only one airplane per flight.
         airplane = self.flight.airplane.all().first()
         Ticket.validate_ticket(self.row, self.seat, airplane, ValidationError)
 
