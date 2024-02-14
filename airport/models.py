@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -108,6 +109,39 @@ class Ticket(models.Model):
         on_delete=models.CASCADE,
         related_name="tickets"
     )
+    @staticmethod
+    def validate_ticket(row, seat, airplane, error_to_raise):
+        if airplane is not None:
+            # Validate the row and seat are within the airplane's capacity.
+            if not (1 <= row <= airplane.rows):
+                raise error_to_raise(
+                    {
+                        'row': f"Row number must be in available range: (1, {airplane.rows})."
+                    }
+                )
+            if not (1 <= seat <= airplane.seats_in_row):
+                raise error_to_raise(
+                    {
+                        'seat': f"Seat number must be in available range: (1, {airplane.seats_in_row})."
+                    }
+                )
+
+        # Check if the seat is already taken.
+        if Ticket.objects.filter(flight=flight, row=row, seat=seat).exists():
+            raise error_to_raise('This seat is already taken on this flight.')
+
+    def clean(self):
+        # Assuming there's only one airplane per flight.
+        airplane = self.flight.airplane.all().first()
+        Ticket.validate_ticket(self.row, self.seat, airplane, ValidationError)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Ticket, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"Ticket ({self.row}, {self.seat}) for {str(self.flight)}"
+        return f"Ticket for Flight {str(self.flight)} - Row: {self.row}, Seat: {self.seat}"
+
+    class Meta:
+        unique_together = ("flight", "row", "seat")
+        ordering = ["row", "seat"]
