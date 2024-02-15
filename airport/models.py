@@ -111,7 +111,7 @@ class Ticket(models.Model):
     )
 
     @staticmethod
-    def validate_ticket(row, seat, airplane, error_to_raise, flight):
+    def validate_ticket(row, seat, flight, airplane, error_to_raise):
         if airplane is not None:
             if not (1 <= row <= airplane.rows):
                 raise error_to_raise(
@@ -131,7 +131,7 @@ class Ticket(models.Model):
 
     def clean(self):
         airplane = self.flight.airplane.all().first()
-        Ticket.validate_ticket(self.row, self.seat, airplane, ValidationError)
+        Ticket.validate_ticket(self.row, self.seat, self.flight, airplane, ValidationError)
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -141,5 +141,5 @@ class Ticket(models.Model):
         return f"Ticket for Flight {str(self.flight)} - Row: {self.row}, Seat: {self.seat}"
 
     class Meta:
-        unique_together = ("flight", "row", "seat")
+        unique_together = ("row", "seat", "flight")
         ordering = ["row", "seat"]
