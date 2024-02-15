@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from airport.models import (
@@ -87,13 +88,40 @@ class AirplaneSerializer(serializers.ModelSerializer):
         )
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Order
-        fields = ("id", "created_at", "user")
-
-
 class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
         fields = ("id", "route", "airplane", "departure_time", "arrival_time")
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        data = super(TicketSerializer, self).validate(attrs=attrs)
+        Ticket.validate_ticket(
+            attrs["row"],
+            attrs["seats_in_row"],
+            attrs["flight"],
+            attrs["flight"].airplane.all().first(),
+            ValidationError
+        )
+        return data
+
+    class Meta:
+        model = Ticket
+        fields = ("id", "row", "seat", "flight")
+
+
+class TicketListSerializer(serializers.ModelSerializer):
+    flight = FlightSerializer(many=False, read_only=True)
+
+
+class TicketSeatSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("row", "seat")
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ("id", "created_at", "user")
