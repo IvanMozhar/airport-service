@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import F, Count
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
@@ -127,6 +129,29 @@ class FlightViewSet(viewsets.ModelViewSet):
     )
     serializer_class = FlightSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
+    def get_queryset(self):
+        departure_time = self.request.query_params.get("departure_time")
+        arrival_time = self.request.query_params.get("arrival_time")
+        source = self.request.query_params.get("source")
+        destination = self.request.query_params.get("destination")
+        queryset = self.queryset
+
+        if departure_time:
+            departure_time = datetime.strptime(departure_time, "%Y-%m-%d").date()
+            queryset = self.queryset.filter(departure_time__date=departure_time)
+
+        if arrival_time:
+            arrival_time = datetime.strptime(arrival_time, "%Y-%m-%d").date()
+            queryset = self.queryset.filter(arrival_time__date=arrival_time)
+
+        if source:
+            queryset = self.queryset.filter(route__source__name__icontains=source)
+
+        if destination:
+            queryset = self.queryset.filter(route__destination__name__icontains=destination)
+
+        return queryset
 
     def get_serializer_class(self):
         if self.action == "retrieve":
