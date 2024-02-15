@@ -1,6 +1,7 @@
 from django.db.models import F, Count
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from airport.models import (
     Crew,
@@ -36,6 +37,7 @@ class CrewViewSet(
 ):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
 
 
@@ -46,12 +48,14 @@ class AirportViewSet(
 ):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
+    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all().select_related("source", "destination")
     serializer_class = RouteSerializer
+    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
@@ -83,12 +87,14 @@ class RouteViewSet(viewsets.ModelViewSet):
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
+    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all().select_related("airplane_type")
     serializer_class = AirplaneSerializer
+    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
@@ -101,6 +107,7 @@ class OrderViewSet(
         "tickets__flight__route", "tickets__flight__airplane"
     )
     serializer_class = OrderSerializer
+    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
@@ -126,6 +133,7 @@ class FlightViewSet(viewsets.ModelViewSet):
         )
     )
     serializer_class = FlightSerializer
+    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
