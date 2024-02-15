@@ -1,3 +1,4 @@
+from django.db.models import F, Count
 from rest_framework import viewsets
 
 from airport.models import (
@@ -20,7 +21,7 @@ from airport.serializers import (
     FlightSerializer,
     TicketSerializer,
     RouteListSerializer,
-    RouteDetailSerializer
+    RouteDetailSerializer,
 )
 
 
@@ -35,7 +36,7 @@ class AirportViewSet(viewsets.ModelViewSet):
 
 
 class RouteViewSet(viewsets.ModelViewSet):
-    queryset = Route.objects.all()
+    queryset = Route.objects.all().select_related("source", "destination")
     serializer_class = RouteSerializer
 
     def get_serializer_class(self):
@@ -52,7 +53,7 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
-    queryset = Airplane.objects.all()
+    queryset = Airplane.objects.all().select_related("airplane_type")
     serializer_class = AirplaneSerializer
 
 
