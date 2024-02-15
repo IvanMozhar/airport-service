@@ -11,7 +11,6 @@ from airport.models import (
     Airplane,
     Order,
     Flight,
-    Ticket
 )
 from airport.permissions import IsAdminOrIfAuthenticatedReadOnly
 from airport.serializers import (
@@ -37,7 +36,6 @@ class CrewViewSet(
 ):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
-    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
 
 
@@ -48,14 +46,12 @@ class AirportViewSet(
 ):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
-    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all().select_related("source", "destination")
     serializer_class = RouteSerializer
-    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
@@ -64,15 +60,15 @@ class RouteViewSet(viewsets.ModelViewSet):
         return [int(str_id) for str_id in qs.split(",")]
 
     def get_queryset(self):
-        source = self.request.query_params("source")
-        destination = self.request.query_params("destination")
+        source = self.request.query_params.get("source")
+        destination = self.request.query_params.get("destination")
         queryset = self.queryset
 
         if source:
             queryset = queryset.filter(source__name__icontains=source)
 
         if destination:
-            queryset = queryset.filter(destination__name__icontains=source)
+            queryset = queryset.filter(destination__name__icontains=destination)
 
         return queryset
 
@@ -87,14 +83,12 @@ class RouteViewSet(viewsets.ModelViewSet):
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
-    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all().select_related("airplane_type")
     serializer_class = AirplaneSerializer
-    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
@@ -107,7 +101,6 @@ class OrderViewSet(
         "tickets__flight__route", "tickets__flight__airplane"
     )
     serializer_class = OrderSerializer
-    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
@@ -133,7 +126,6 @@ class FlightViewSet(viewsets.ModelViewSet):
         )
     )
     serializer_class = FlightSerializer
-    authentication_classes = (JWTAuthentication, )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
