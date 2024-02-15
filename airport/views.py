@@ -54,6 +54,24 @@ class RouteViewSet(viewsets.ModelViewSet):
     serializer_class = RouteSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
+    @staticmethod
+    def _params_to_ints(qs):
+        """Converts a list of string IDs to a list of integers"""
+        return [int(str_id) for str_id in qs.split(",")]
+
+    def get_queryset(self):
+        source = self.request.query_params("source")
+        destination = self.request.query_params("destination")
+        queryset = self.queryset
+
+        if source:
+            queryset = queryset.filter(source__name__icontains=source)
+
+        if destination:
+            queryset = queryset.filter(destination__name__icontains=source)
+
+        return queryset
+
     def get_serializer_class(self):
         if self.action == "list":
             return RouteListSerializer
