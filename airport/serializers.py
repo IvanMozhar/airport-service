@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from rest_framework import serializers
 
 from airport.models import (
@@ -88,13 +89,24 @@ class AirplaneSerializer(serializers.ModelSerializer):
         )
 
 
+class AirplaneNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Airplane
+        fields = ("name",)
+
+
 class FlightSerializer(serializers.ModelSerializer):
+    route = serializers.StringRelatedField(many=False)
+    airplane = AirplaneNameSerializer(many=True)
+
     class Meta:
         model = Flight
         fields = ("id", "route", "airplane", "departure_time", "arrival_time")
 
 
 class TicketSerializer(serializers.ModelSerializer):
+    flight = FlightSerializer(many=False, read_only=True)
+
     def validate(self, attrs):
         data = super(TicketSerializer, self).validate(attrs=attrs)
         Ticket.validate_ticket(
@@ -111,17 +123,31 @@ class TicketSerializer(serializers.ModelSerializer):
         fields = ("id", "row", "seat", "flight")
 
 
-class TicketListSerializer(serializers.ModelSerializer):
+class TicketListSerializer(TicketSerializer):
     flight = FlightSerializer(many=False, read_only=True)
 
 
-class TicketSeatSerializer(serializers.ModelSerializer):
+class TicketSeatSerializer(TicketSerializer):
     class Meta:
         model = Ticket
         fields = ("row", "seat")
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    tickets = TicketSerializer(many=True, read_only=False, allow_empty=False)
+
     class Meta:
         model = Order
-        fields = ("id", "created_at", "user")
+        fields = ("id", "tickets", "created_at")
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            tickets_data = validated_data.pop("tickets")
+            order = Order.objects.create(**validated_data)
+            for ticket_data in tickets_data:
+                Ticket.objects.create(order=order, **ticket_data)
+            return order
+
+
+class OrderListSerializer(OrderSerializer):
+    tickets = TicketListSerializer(many=True, read_only=True)
