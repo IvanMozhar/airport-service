@@ -4,6 +4,7 @@ from django.db.models import F, Count
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, mixins
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 
 from airport.models import (
@@ -31,6 +32,11 @@ from airport.serializers import (
 )
 
 
+class Pagination(PageNumberPagination):
+    page_size = 10
+    max_page_size = 100
+
+
 class CrewViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -39,6 +45,7 @@ class CrewViewSet(
 ):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+    pagination_class = Pagination
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
@@ -49,12 +56,14 @@ class AirportViewSet(
 ):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
+    pagination_class = Pagination
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all().select_related("source", "destination")
     serializer_class = RouteSerializer
+    pagination_class = Pagination
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
@@ -103,12 +112,14 @@ class RouteViewSet(viewsets.ModelViewSet):
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
+    pagination_class = Pagination
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all().select_related("airplane_type")
     serializer_class = AirplaneSerializer
+    pagination_class = Pagination
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
@@ -147,6 +158,7 @@ class FlightViewSet(viewsets.ModelViewSet):
         )
     )
     serializer_class = FlightSerializer
+    pagination_class = Pagination
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
