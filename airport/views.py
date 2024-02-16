@@ -92,7 +92,7 @@ class RouteViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 "destination",
                 type=OpenApiTypes.STR,
-                description="Filter by destination name (ex. ?source=Amst)"
+                description="Filter by destination name (ex. ?destination=Amst)"
             )
         ]
     )
@@ -197,7 +197,7 @@ class FlightViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 "destination",
                 type=OpenApiTypes.STR,
-                description="Filter by destination name (ex. ?source=Amst)"
+                description="Filter by destination name (ex. ?destination=Amst)"
             )
         ]
     )
