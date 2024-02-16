@@ -117,9 +117,7 @@ class OrderViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet
 ):
-    queryset = Order.objects.all().prefetch_related(
-        "tickets__flight__route", "tickets__flight__airplane"
-    )
+    queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -139,7 +137,7 @@ class OrderViewSet(
 class FlightViewSet(viewsets.ModelViewSet):
     queryset = (
         Flight.objects.all()
-        .select_related("route")
+        .select_related("route", "route__source", "route__destination")
         .prefetch_related("airplane")
         .annotate(
             tickets_available=(
