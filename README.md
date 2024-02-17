@@ -44,6 +44,11 @@ docker pull ivanmozhar/airport_service-app:latest
 - Manage tickets and orders
 - Detail pages available by /api/airport/"number"/"names"/
 
+# DB structure
+
+![image](https://github.com/IvanMozhar/airport-service/assets/147508342/4686ab94-cb01-4cb6-9352-faef9ddd5f2a)
+
+
 # Project pages
 Crews: ![image](https://github.com/IvanMozhar/airport-service/assets/147508342/a4d043ca-0657-4af0-84b2-624a7afeea30)
 Airports: ![image](https://github.com/IvanMozhar/airport-service/assets/147508342/96800435-0b29-4da7-8b83-807dfde11e60)
