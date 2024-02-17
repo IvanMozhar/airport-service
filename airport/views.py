@@ -82,7 +82,9 @@ class RouteViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(source__name__icontains=source)
 
         if destination:
-            queryset = queryset.filter(destination__name__icontains=destination)
+            queryset = queryset.filter(
+                destination__name__icontains=destination
+            )
 
         return queryset
 
@@ -103,7 +105,8 @@ class RouteViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 "destination",
                 type=OpenApiTypes.STR,
-                description="Filter by destination name (ex. ?destination=Amst)"
+                description="Filter by destination"
+                            " name (ex. ?destination=Amst)"
             )
         ]
     )
@@ -178,8 +181,9 @@ class FlightViewSet(viewsets.ModelViewSet):
         .prefetch_related("airplane")
         .annotate(
             tickets_available=(
-                    F("airplane__rows") * F("airplane__seats_in_row")
-                    - Count("tickets")
+                F("airplane__rows")
+                * F("airplane__seats_in_row")
+                - Count("tickets")
             )
         )
     )
@@ -195,18 +199,29 @@ class FlightViewSet(viewsets.ModelViewSet):
         queryset = self.queryset
 
         if departure_time:
-            departure_time = datetime.strptime(departure_time, "%Y-%m-%d").date()
-            queryset = self.queryset.filter(departure_time__date=departure_time)
+            departure_time = datetime.strptime(
+                departure_time,
+                "%Y-%m-%d"
+            ).date()
+            queryset = self.queryset.filter(
+                departure_time__date=departure_time
+            )
 
         if arrival_time:
             arrival_time = datetime.strptime(arrival_time, "%Y-%m-%d").date()
-            queryset = self.queryset.filter(arrival_time__date=arrival_time)
+            queryset = self.queryset.filter(
+                arrival_time__date=arrival_time
+            )
 
         if source:
-            queryset = self.queryset.filter(route__source__name__icontains=source)
+            queryset = self.queryset.filter(
+                route__source__name__icontains=source
+            )
 
         if destination:
-            queryset = self.queryset.filter(route__destination__name__icontains=destination)
+            queryset = self.queryset.filter(
+                route__destination__name__icontains=destination
+            )
 
         return queryset
 
@@ -220,12 +235,14 @@ class FlightViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 "departure_time",
                 type=OpenApiTypes.DATE,
-                description="Filter by departure time (ex. ?departure_time=2024-02-15)"
+                description="Filter by departure time"
+                            " (ex. ?departure_time=2024-02-15)"
             ),
             OpenApiParameter(
                 "arrival_time",
                 type=OpenApiTypes.DATE,
-                description="Filter by arrival  time (ex. ?arrival_time=2024-02-15)"
+                description="Filter by arrival"
+                            " time (ex. ?arrival_time=2024-02-15)"
             ),
             OpenApiParameter(
                 "source",
@@ -235,7 +252,8 @@ class FlightViewSet(viewsets.ModelViewSet):
             OpenApiParameter(
                 "destination",
                 type=OpenApiTypes.STR,
-                description="Filter by destination name (ex. ?destination=Amst)"
+                description="Filter by destination name"
+                            " (ex. ?destination=Amst)"
             )
         ]
     )

@@ -105,7 +105,8 @@ class Flight(models.Model):
     arrival_time = models.DateTimeField()
 
     def __str__(self):
-        return f"{str(self.route)}: {self.departure_time} - {self.arrival_time}"
+        return (f"{str(self.route)}: "
+                f"{self.departure_time} - {self.arrival_time}")
 
 
 class Ticket(models.Model):
@@ -128,29 +129,38 @@ class Ticket(models.Model):
             if not (1 <= row <= airplane.rows):
                 raise error_to_raise(
                     {
-                        'row': f"Row number must be in available range: (1, {airplane.rows})."
+                        "row": f"Row number must be in available range: "
+                               f"(1, {airplane.rows})."
                     }
                 )
             if not (1 <= seat <= airplane.seats_in_row):
                 raise error_to_raise(
                     {
-                        'seat': f"Seat number must be in available range: (1, {airplane.seats_in_row})."
+                        "seat": f"Seat number must be in available range: "
+                                f"(1, {airplane.seats_in_row})."
                     }
                 )
 
         if Ticket.objects.filter(flight=flight, row=row, seat=seat).exists():
-            raise error_to_raise('This seat is already taken on this flight.')
+            raise error_to_raise("This seat is already taken on this flight.")
 
     def clean(self):
         airplane = self.flight.airplane.all().first()
-        Ticket.validate_ticket(self.row, self.seat, self.flight, airplane, ValidationError)
+        Ticket.validate_ticket(
+            self.row,
+            self.seat,
+            self.flight,
+            airplane,
+            ValidationError
+        )
 
     def save(self, *args, **kwargs):
         self.full_clean()
         super(Ticket, self).save(*args, **kwargs)
 
     def __str__(self):
-        return f"Ticket for Flight {str(self.flight)} - Row: {self.row}, Seat: {self.seat}"
+        return (f"Ticket for Flight "
+                f"{str(self.flight)} - Row: {self.row}, Seat: {self.seat}")
 
     class Meta:
         unique_together = ("row", "seat", "flight")
