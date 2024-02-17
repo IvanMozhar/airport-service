@@ -42,3 +42,11 @@ docker pull ivanmozhar/airport_service-app:latest
 - Documentation: /api/doc/swagger
 - Create crews, airports, airplanes, routes, flights
 - Manage tickets and orders
+- Detail pages available by /api/airport/"number"/"names"/
+
+# Project pages
+Crews: ![image](https://github.com/IvanMozhar/airport-service/assets/147508342/a4d043ca-0657-4af0-84b2-624a7afeea30)
+Airports: ![image](https://github.com/IvanMozhar/airport-service/assets/147508342/96800435-0b29-4da7-8b83-807dfde11e60)
+Routes: ![image](https://github.com/IvanMozhar/airport-service/assets/147508342/1dd07917-a4b9-48dd-8f5c-ce626b29977f)
+Airplane types: ![image](https://github.com/IvanMozhar/airport-service/assets/147508342/eedcf932-89b3-4055-82f2-d29ba8fe46ba)
+Flights: ![image](https://github.com/IvanMozhar/airport-service/assets/147508342/ea5d156f-1a80-43a2-97ac-deea3d782255)
